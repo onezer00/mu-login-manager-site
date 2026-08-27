@@ -113,7 +113,7 @@ function Changelog() {
     const controller = new AbortController();
     fetch('https://api.github.com/repos/onezer00/mu-login-manager-releases/releases?per_page=30', { signal: controller.signal, headers: { Accept: 'application/vnd.github+json' } })
       .then((response) => response.ok ? response.json() : Promise.reject(new Error('GitHub indisponível')))
-      .then((data: GithubRelease[]) => { if (data.length) setReleases(data); })
+      .then((data) => { const releases = data as GithubRelease[]; if (releases.length) setReleases(releases); })
       .catch(() => undefined)
       .finally(() => setSyncing(false));
     return () => controller.abort();

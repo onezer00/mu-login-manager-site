@@ -6,6 +6,7 @@ const geist = Geist({ variable: '--font-geist', subsets: ['latin'] });
 const mono = Geist_Mono({ variable: '--font-mono', subsets: ['latin'] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://onezer00.github.io/mu-login-manager-site/'),
   title: 'MU Login Manager — Suas contas, um só comando',
   description: 'Organize, conecte e controle múltiplas contas de MU em uma única interface para Windows.',
   openGraph: {
