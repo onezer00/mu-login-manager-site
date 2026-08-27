@@ -24,3 +24,7 @@ main{overflow:hidden}.tab-viewport.slide-next{animation:carousel-next .55s cubic
 @media(max-width:900px){.tab-nav{gap:2px!important}.tab-nav button{padding-inline:10px}.trial-banner{align-items:flex-start;flex-direction:column}.release-content ul{grid-template-columns:1fr}}
 @media(max-width:600px){.trial-pill{align-items:flex-start;flex-direction:column}.trial-pill span{line-height:1.5}.carousel-controls{height:64px}.release-list article{grid-template-columns:45px 1fr}.release-content{padding:20px 18px 24px}.release-title{display:block}.release-title time{display:block;margin-bottom:15px}.release-title h3{margin-bottom:8px}.trial-banner>a{width:100%;text-align:center}}
 @media(prefers-reduced-motion:reduce){.tab-viewport.slide-next,.tab-viewport.slide-previous{animation:none}}
+
+/* Ritmo mais perceptível para a troca de página */
+.tab-viewport.slide-next{animation-name:carousel-next-slow;animation-duration:.82s}.tab-viewport.slide-previous{animation-name:carousel-previous-slow;animation-duration:.82s}@keyframes carousel-next-slow{from{opacity:0;transform:translateX(11vw) scale(.98);filter:blur(4px)}to{opacity:1;transform:none;filter:blur(0)}}@keyframes carousel-previous-slow{from{opacity:0;transform:translateX(-11vw) scale(.98);filter:blur(4px)}to{opacity:1;transform:none;filter:blur(0)}}
+@media(prefers-reduced-motion:reduce){.tab-viewport.slide-next,.tab-viewport.slide-previous{animation:none}}
