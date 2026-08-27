@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 const RELEASES_URL = 'https://github.com/onezer00/mu-login-manager-releases/releases';
+const FALLBACK_DOWNLOAD_URL = `${RELEASES_URL}/download/v0.1.12-beta/Setup-MU-Login-Manager-0.1.12-beta.exe`;
 type Tab = 'inicio' | 'recursos' | 'planos' | 'seguranca' | 'changelog';
 const tabs: { id: Tab; label: string }[] = [{ id: 'inicio', label: 'Início' }, { id: 'recursos', label: 'Recursos' }, { id: 'planos', label: 'Planos' }, { id: 'seguranca', label: 'Segurança' }, { id: 'changelog', label: 'Novidades' }];
 const plans = [
@@ -20,13 +21,28 @@ const benefits = [
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>('inicio');
   const [direction, setDirection] = useState<'next' | 'previous'>('next');
+  const [preparingDownload, setPreparingDownload] = useState(false);
   const navigate = (tab: Tab) => { if (tab !== activeTab) { setDirection(tabs.findIndex((item) => item.id === tab) > tabs.findIndex((item) => item.id === activeTab) ? 'next' : 'previous'); setActiveTab(tab); window.scrollTo({ top: 0, behavior: 'smooth' }); } };
+  const downloadLatest = async () => {
+    if (preparingDownload) return;
+    setPreparingDownload(true);
+    let downloadUrl = FALLBACK_DOWNLOAD_URL;
+    try {
+      const response = await fetch('https://api.github.com/repos/onezer00/mu-login-manager-releases/releases?per_page=1', { headers: { Accept: 'application/vnd.github+json' } });
+      if (response.ok) {
+        const [release] = await response.json() as GithubRelease[];
+        downloadUrl = release?.assets.find((asset) => asset.name.toLowerCase().endsWith('.exe'))?.browser_download_url || downloadUrl;
+      }
+    } catch { /* O instalador de contingência permanece disponível. */ }
+    window.location.assign(downloadUrl);
+    window.setTimeout(() => setPreparingDownload(false), 1200);
+  };
   const activeIndex = tabs.findIndex((tab) => tab.id === activeTab);
   return <main>
     <header className="nav shell">
       <button className="brand brand-button" onClick={() => navigate('inicio')} aria-label="MU Login Manager — início"><span className="brand-mark">MU</span><span>LOGIN MANAGER</span></button>
       <nav className="tab-nav" aria-label="Navegação principal" role="tablist">{tabs.map((tab) => <button key={tab.id} role="tab" aria-selected={activeTab === tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => navigate(tab.id)}>{tab.label}</button>)}</nav>
-      <button className="nav-cta nav-download" onClick={() => navigate('changelog')}>Baixar beta</button>
+      <button className={`nav-cta nav-download ${preparingDownload ? 'preparing' : ''}`} disabled={preparingDownload} onClick={downloadLatest}>{preparingDownload ? 'Preparando…' : 'Baixar beta'}</button>
     </header>
     <div className={`tab-viewport slide-${direction}`} key={activeTab} role="tabpanel" aria-label={tabs.find((tab) => tab.id === activeTab)?.label}>
       {activeTab === 'inicio' && <Inicio onNavigate={navigate} />}{activeTab === 'recursos' && <Recursos />}{activeTab === 'planos' && <Planos onNavigate={navigate} />}{activeTab === 'seguranca' && <Seguranca />}{activeTab === 'changelog' && <Changelog />}
