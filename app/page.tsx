@@ -64,7 +64,11 @@ function Changelog() {
   const [releases, setReleases] = useState<GithubRelease[]>(fallbackReleases);
   const [syncing, setSyncing] = useState(true);
   const [visibleCount, setVisibleCount] = useState(4);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [revealedFrom, setRevealedFrom] = useState(4);
   const lastLoadScrollRef = useRef(0);
+  const loadingMoreRef = useRef(false);
+  const loadingTimerRef = useRef<number | null>(null);
   useEffect(() => {
     const controller = new AbortController();
     fetch('https://api.github.com/repos/onezer00/mu-login-manager-releases/releases?per_page=30', { signal: controller.signal, headers: { Accept: 'application/vnd.github+json' } })
@@ -80,16 +84,26 @@ function Changelog() {
       const scrollTop = window.scrollY;
       const nearEnd = window.innerHeight + scrollTop >= document.documentElement.scrollHeight - 180;
       const movedEnough = scrollTop >= lastLoadScrollRef.current + 140;
-      if (nearEnd && movedEnough) {
+      if (nearEnd && movedEnough && !loadingMoreRef.current) {
         lastLoadScrollRef.current = scrollTop;
-        setVisibleCount((count) => Math.min(count + 4, releases.length));
+        loadingMoreRef.current = true;
+        setLoadingMore(true);
+        loadingTimerRef.current = window.setTimeout(() => {
+          setVisibleCount((count) => {
+            setRevealedFrom(count);
+            return Math.min(count + 4, releases.length);
+          });
+          loadingMoreRef.current = false;
+          setLoadingMore(false);
+        }, 650);
       }
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, [releases.length, visibleCount]);
+  useEffect(() => () => { if (loadingTimerRef.current) window.clearTimeout(loadingTimerRef.current); }, []);
   const latest = releases[0];
   const installer = latest?.assets.find((asset) => asset.name.toLowerCase().endsWith('.exe'));
   const visibleReleases = releases.slice(0, visibleCount);
-  return <section className="section shell tab-section changelog"><div className="section-head split"><div><p className="eyebrow"><span /> NOVIDADES DO MANAGER</p><h2>Baixe a versão mais<br /><em>recente e segura.</em></h2></div><p>Confira o que mudou, identifique o instalador correto e faça o download sempre pela publicação oficial.</p></div>{latest && <article className="latest-release"><div className="latest-copy"><span>VERSÃO RECOMENDADA</span><h3>{latest.name || latest.tag_name}</h3><p>{installer?.name || 'Instalador para Windows'}</p><small>{installer ? `${(installer.size / 1024 / 1024).toFixed(1)} MB` : 'Consulte os arquivos do release'} · Publicado em {new Intl.DateTimeFormat('pt-BR').format(new Date(latest.published_at))}</small></div><div className="latest-actions">{installer && <a className="primary" href={installer.browser_download_url}>Baixar instalador <b>↓</b></a>}<a href={latest.html_url}>Notas da versão <b>↗</b></a></div></article>}<div className="release-status">{syncing ? 'Sincronizando com os releases oficiais…' : 'Histórico sincronizado com o GitHub'}</div><div className="release-list">{visibleReleases.map((release, index) => { const asset = release.assets.find((item) => item.name.toLowerCase().endsWith('.exe')); const notes = release.body?.split('\n').map((line) => line.trim()).filter((line) => /^[-*]\s+/.test(line)).slice(0, 4).map((line) => line.replace(/^[-*]\s+/, '')) ?? []; return <article key={release.id}><div className="release-rail"><span>{String(index + 1).padStart(2, '0')}</span><i /></div><div className="release-content"><div className="release-title"><div><small>{index === 0 ? 'MAIS RECENTE' : 'VERSÃO ANTERIOR'}</small><h3>{release.tag_name}</h3></div><time>{new Intl.DateTimeFormat('pt-BR').format(new Date(release.published_at))}</time></div><div className="release-file"><span>{asset?.name || 'Arquivo disponível no release'}</span>{asset && <small>{(asset.size / 1024 / 1024).toFixed(1)} MB</small>}<a href={release.html_url}>{index === 0 ? 'Ver detalhes' : 'Ver release'} ↗</a></div>{notes.length > 0 && <ul>{notes.map((item) => <li key={item}><b>+</b>{item}</li>)}</ul>}</div></article>; })}</div><div className={`release-loader ${visibleCount >= releases.length ? 'complete' : ''}`}><span />{visibleCount < releases.length ? 'Continue rolando para carregar versões anteriores' : `${releases.length} versões exibidas`}</div><a className="changelog-link" href={RELEASES_URL}>Ver todos os releases no GitHub <b>↗</b></a></section>;
+  return <section className="section shell tab-section changelog"><div className="section-head split"><div><p className="eyebrow"><span /> NOVIDADES DO MANAGER</p><h2>Baixe a versão mais<br /><em>recente e segura.</em></h2></div><p>Confira o que mudou, identifique o instalador correto e faça o download sempre pela publicação oficial.</p></div>{latest && <article className="latest-release"><div className="latest-copy"><span>VERSÃO RECOMENDADA</span><h3>{latest.name || latest.tag_name}</h3><p>{installer?.name || 'Instalador para Windows'}</p><small>{installer ? `${(installer.size / 1024 / 1024).toFixed(1)} MB` : 'Consulte os arquivos do release'} · Publicado em {new Intl.DateTimeFormat('pt-BR').format(new Date(latest.published_at))}</small></div><div className="latest-actions">{installer && <a className="primary" href={installer.browser_download_url}>Baixar instalador <b>↓</b></a>}<a href={latest.html_url}>Notas da versão <b>↗</b></a></div></article>}<div className="release-status">{syncing ? 'Sincronizando com os releases oficiais…' : 'Histórico sincronizado com o GitHub'}</div><div className="release-list">{visibleReleases.map((release, index) => { const asset = release.assets.find((item) => item.name.toLowerCase().endsWith('.exe')); const notes = release.body?.split('\n').map((line) => line.trim()).filter((line) => /^[-*]\s+/.test(line)).slice(0, 4).map((line) => line.replace(/^[-*]\s+/, '')) ?? []; return <article className={index >= revealedFrom ? 'release-reveal' : ''} style={{ animationDelay: `${Math.max(0, index - revealedFrom) * 90}ms` }} key={release.id}><div className="release-rail"><span>{String(index + 1).padStart(2, '0')}</span><i /></div><div className="release-content"><div className="release-title"><div><small>{index === 0 ? 'MAIS RECENTE' : 'VERSÃO ANTERIOR'}</small><h3>{release.tag_name}</h3></div><time>{new Intl.DateTimeFormat('pt-BR').format(new Date(release.published_at))}</time></div><div className="release-file"><span>{asset?.name || 'Arquivo disponível no release'}</span>{asset && <small>{(asset.size / 1024 / 1024).toFixed(1)} MB</small>}<a href={release.html_url}>{index === 0 ? 'Ver detalhes' : 'Ver release'} ↗</a></div>{notes.length > 0 && <ul>{notes.map((item) => <li key={item}><b>+</b>{item}</li>)}</ul>}</div></article>; })}</div><div className={`release-loader ${visibleCount >= releases.length ? 'complete' : ''} ${loadingMore ? 'loading' : ''}`}><span />{loadingMore ? 'Carregando versões anteriores…' : visibleCount < releases.length ? 'Continue rolando para carregar versões anteriores' : `${releases.length} versões exibidas`}</div><a className="changelog-link" href={RELEASES_URL}>Ver todos os releases no GitHub <b>↗</b></a></section>;
 }
