@@ -3,9 +3,11 @@
 import { useEffect, useRef, useState } from 'react';
 
 const RELEASES_URL = 'https://github.com/onezer00/mu-login-manager-releases/releases';
+const COMMUNITY_REPOSITORY_URL = 'https://github.com/onezer00/mu-login-manager-site';
+const ISSUES_API_URL = 'https://api.github.com/repos/onezer00/mu-login-manager-site/issues?state=all&per_page=100&sort=updated&direction=desc';
 const FALLBACK_DOWNLOAD_URL = `${RELEASES_URL}/download/v0.1.12-beta/Setup-MU-Login-Manager-0.1.12-beta.exe`;
-type Tab = 'inicio' | 'recursos' | 'planos' | 'seguranca' | 'changelog';
-const tabs: { id: Tab; label: string }[] = [{ id: 'inicio', label: 'Início' }, { id: 'recursos', label: 'Recursos' }, { id: 'planos', label: 'Planos' }, { id: 'seguranca', label: 'Segurança' }, { id: 'changelog', label: 'Novidades' }];
+type Tab = 'inicio' | 'recursos' | 'planos' | 'seguranca' | 'changelog' | 'ajuda';
+const tabs: { id: Tab; label: string }[] = [{ id: 'inicio', label: 'Início' }, { id: 'recursos', label: 'Recursos' }, { id: 'planos', label: 'Planos' }, { id: 'seguranca', label: 'Segurança' }, { id: 'changelog', label: 'Novidades' }, { id: 'ajuda', label: 'Ajuda' }];
 const plans = [
   { name: 'Party', accounts: '5 contas', devices: '1 PC', price: 'R$ 49,90', tone: 'blue' },
   { name: 'Party + Farm', accounts: '10 contas', devices: '1 PC', price: 'R$ 79,90', tone: 'bronze' },
@@ -45,7 +47,7 @@ export default function Home() {
       <button className={`nav-cta nav-download ${preparingDownload ? 'preparing' : ''}`} disabled={preparingDownload} onClick={downloadLatest}>{preparingDownload ? 'Preparando…' : 'Baixar beta'}</button>
     </header>
     <div className={`tab-viewport slide-${direction}`} key={activeTab} role="tabpanel" aria-label={tabs.find((tab) => tab.id === activeTab)?.label}>
-      {activeTab === 'inicio' && <Inicio onNavigate={navigate} />}{activeTab === 'recursos' && <Recursos />}{activeTab === 'planos' && <Planos onNavigate={navigate} />}{activeTab === 'seguranca' && <Seguranca />}{activeTab === 'changelog' && <Changelog />}
+      {activeTab === 'inicio' && <Inicio onNavigate={navigate} />}{activeTab === 'recursos' && <Recursos />}{activeTab === 'planos' && <Planos onNavigate={navigate} />}{activeTab === 'seguranca' && <Seguranca />}{activeTab === 'changelog' && <Changelog />}{activeTab === 'ajuda' && <Ajuda />}
     </div>
     <div className="carousel-controls shell" aria-label="Controle das páginas"><button disabled={activeIndex === 0} onClick={() => navigate(tabs[activeIndex - 1].id)} aria-label="Página anterior">←</button><div>{tabs.map((tab) => <button key={tab.id} className={tab.id === activeTab ? 'active' : ''} onClick={() => navigate(tab.id)} aria-label={`Abrir ${tab.label}`} />)}</div><button disabled={activeIndex === tabs.length - 1} onClick={() => navigate(tabs[activeIndex + 1].id)} aria-label="Próxima página">→</button></div>
     <footer className="shell"><button className="brand brand-button" onClick={() => navigate('inicio')}><span className="brand-mark">MU</span><span>LOGIN MANAGER</span></button><p>Ferramenta independente para gerenciamento de contas.</p><span>© 2026 MU Login Manager</span></footer>
@@ -146,4 +148,113 @@ function Changelog() {
   const installer = latest?.assets.find((asset) => asset.name.toLowerCase().endsWith('.exe'));
   const visibleReleases = releases.slice(0, visibleCount);
   return <section className="section shell tab-section changelog"><div className="section-head split"><div><p className="eyebrow"><span /> NOVIDADES DO MANAGER</p><h2>Baixe a versão mais<br /><em>recente e segura.</em></h2></div><p>Confira o que mudou, identifique o instalador correto e faça o download sempre pela publicação oficial.</p></div>{latest && <article className="latest-release"><div className="latest-copy"><span>VERSÃO RECOMENDADA</span><h3>{latest.name || latest.tag_name}</h3><p>{installer?.name || 'Instalador para Windows'}</p><small>{installer ? `${(installer.size / 1024 / 1024).toFixed(1)} MB` : 'Consulte os arquivos do release'} · Publicado em {new Intl.DateTimeFormat('pt-BR').format(new Date(latest.published_at))}</small><ReleaseBody body={latest.body} compact /></div><div className="latest-actions">{installer && <a className="primary" href={installer.browser_download_url}>Baixar instalador <b>↓</b></a>}<a href={latest.html_url}>Notas da versão <b>↗</b></a></div></article>}<div className="release-status">{syncing ? 'Sincronizando com os releases oficiais…' : 'Histórico sincronizado com o GitHub'}</div><div className="release-list">{visibleReleases.map((release, index) => { const asset = release.assets.find((item) => item.name.toLowerCase().endsWith('.exe')); return <article className={index >= revealedFrom ? 'release-reveal' : ''} style={{ animationDelay: `${Math.max(0, index - revealedFrom) * 90}ms` }} key={release.id}><div className="release-rail"><span>{String(index + 1).padStart(2, '0')}</span><i /></div><div className="release-content"><div className="release-title"><div><small>{index === 0 ? 'MAIS RECENTE' : 'VERSÃO ANTERIOR'}</small><h3>{release.tag_name}</h3></div><time>{new Intl.DateTimeFormat('pt-BR').format(new Date(release.published_at))}</time></div><div className="release-file"><span>{asset?.name || 'Arquivo disponível no release'}</span>{asset && <small>{(asset.size / 1024 / 1024).toFixed(1)} MB</small>}<a href={release.html_url}>{index === 0 ? 'Ver detalhes' : 'Ver release'} ↗</a></div><ReleaseBody body={release.body} /></div></article>; })}</div><div className={`release-loader ${visibleCount >= releases.length ? 'complete' : ''} ${loadingMore ? 'loading' : ''}`}><span />{loadingMore ? 'Carregando versões anteriores…' : visibleCount < releases.length ? 'Continue rolando para carregar versões anteriores' : `${releases.length} versões exibidas`}</div><a className="changelog-link" href={RELEASES_URL}>Ver todos os releases no GitHub <b>↗</b></a></section>;
+}
+
+type GithubLabel = { id: number; name: string; color: string };
+type GithubIssue = {
+  id: number;
+  number: number;
+  title: string;
+  body: string | null;
+  state: 'open' | 'closed';
+  html_url: string;
+  comments: number;
+  updated_at: string;
+  labels: GithubLabel[];
+  pull_request?: unknown;
+};
+type IssueStatus = 'all' | 'open' | 'closed';
+type IssueCategory = 'all' | 'faq' | 'bug' | 'sugestao' | 'duvida';
+
+const issueCategories: { id: IssueCategory; label: string }[] = [
+  { id: 'all', label: 'Todos' },
+  { id: 'faq', label: 'FAQ' },
+  { id: 'bug', label: 'Problemas' },
+  { id: 'sugestao', label: 'Sugestões' },
+  { id: 'duvida', label: 'Dúvidas' },
+];
+
+function normalizeIssueText(value: string) {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function issueSummary(issue: GithubIssue) {
+  const cleanBody = (issue.body ?? '')
+    .replace(/<!--[^]*?-->/g, '')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/[*_`>-]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return cleanBody || 'Abra a discussão para conferir os detalhes e acompanhar as respostas.';
+}
+
+function Ajuda() {
+  const [issues, setIssues] = useState<GithubIssue[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [query, setQuery] = useState('');
+  const [status, setStatus] = useState<IssueStatus>('all');
+  const [category, setCategory] = useState<IssueCategory>('all');
+  const [visibleCount, setVisibleCount] = useState(10);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const loadingTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(ISSUES_API_URL, { signal: controller.signal, headers: { Accept: 'application/vnd.github+json' } })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error('GitHub indisponível')))
+      .then((data) => setIssues((data as GithubIssue[]).filter((issue) => !issue.pull_request)))
+      .catch((error) => { if (error instanceof Error && error.name !== 'AbortError') setLoadError(true); })
+      .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, []);
+
+  const normalizedQuery = normalizeIssueText(query.trim());
+  const filteredIssues = issues.filter((issue) => {
+    const labels = issue.labels.map((label) => normalizeIssueText(label.name));
+    const matchesStatus = status === 'all' || issue.state === status;
+    const matchesCategory = category === 'all' || labels.some((label) => label === category || label.includes(category));
+    const searchable = normalizeIssueText(`${issue.title} ${issue.body ?? ''} ${labels.join(' ')}`);
+    return matchesStatus && matchesCategory && (!normalizedQuery || searchable.includes(normalizedQuery));
+  });
+  const visibleIssues = filteredIssues.slice(0, visibleCount);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || visibleCount >= filteredIssues.length) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting || loadingMore) return;
+      setLoadingMore(true);
+      loadingTimerRef.current = window.setTimeout(() => {
+        setVisibleCount((count) => Math.min(count + 10, filteredIssues.length));
+        setLoadingMore(false);
+      }, 550);
+    }, { rootMargin: '180px' });
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [filteredIssues.length, loadingMore, visibleCount]);
+  useEffect(() => () => { if (loadingTimerRef.current) window.clearTimeout(loadingTimerRef.current); }, []);
+
+  return <section className="section shell tab-section help-center">
+    <div className="section-head split help-heading"><div><p className="eyebrow"><span /> AJUDA E FEEDBACK</p><h2>Encontre respostas.<br /><em>Ajude a melhorar.</em></h2></div><p>Consulte dúvidas, problemas conhecidos e sugestões da comunidade. Se não encontrar o que procura, envie seu relato pelo canal oficial.</p></div>
+    <div className="feedback-actions">
+      <a href={`${COMMUNITY_REPOSITORY_URL}/issues/new?template=bug_report.yml`}><span>01</span><div><b>Relatar um problema</b><small>Conte o que aconteceu e como reproduzir.</small></div><strong>↗</strong></a>
+      <a href={`${COMMUNITY_REPOSITORY_URL}/issues/new?template=feature_request.yml`}><span>02</span><div><b>Sugerir uma melhoria</b><small>Compartilhe uma ideia para o Manager.</small></div><strong>↗</strong></a>
+      <a href={`${COMMUNITY_REPOSITORY_URL}/issues/new?template=question.yml`}><span>03</span><div><b>Fazer uma pergunta</b><small>Peça ajuda à comunidade e acompanhe a resposta.</small></div><strong>↗</strong></a>
+    </div>
+    <div className="issue-browser">
+      <div className="issue-toolbar">
+        <label className="issue-search"><span>⌕</span><input value={query} onChange={(event) => { setQuery(event.target.value); setVisibleCount(10); }} placeholder="Pesquisar por título, descrição ou categoria" aria-label="Pesquisar nas dúvidas e feedbacks" />{query && <button onClick={() => { setQuery(''); setVisibleCount(10); }} aria-label="Limpar pesquisa">×</button>}</label>
+        <div className="status-filter" aria-label="Filtrar por status">{(['all', 'open', 'closed'] as IssueStatus[]).map((item) => <button className={status === item ? 'active' : ''} key={item} onClick={() => { setStatus(item); setVisibleCount(10); }}>{item === 'all' ? 'Todos' : item === 'open' ? 'Abertos' : 'Resolvidos'}</button>)}</div>
+      </div>
+      <div className="category-filter" aria-label="Filtrar por categoria">{issueCategories.map((item) => <button className={category === item.id ? 'active' : ''} key={item.id} onClick={() => { setCategory(item.id); setVisibleCount(10); }}>{item.label}</button>)}</div>
+      <div className="issue-results-title"><div><b>Discussões da comunidade</b><span>{filteredIssues.length} {filteredIssues.length === 1 ? 'resultado' : 'resultados'}</span></div><a href={`${COMMUNITY_REPOSITORY_URL}/issues`}>Ver tudo no GitHub ↗</a></div>
+      {loading && <div className="issue-skeletons" aria-label="Carregando feedbacks">{Array.from({ length: 3 }, (_, index) => <div key={index}><span /><b /><i /></div>)}</div>}
+      {!loading && loadError && <div className="issue-empty"><b>Não foi possível carregar as discussões agora.</b><span>Você ainda pode consultar e enviar feedback diretamente pelo GitHub.</span><a href={`${COMMUNITY_REPOSITORY_URL}/issues`}>Abrir central no GitHub ↗</a></div>}
+      {!loading && !loadError && visibleIssues.length === 0 && <div className="issue-empty"><b>Nenhum resultado encontrado.</b><span>Tente remover algum filtro ou pesquisar usando outros termos.</span></div>}
+      <div className="issue-grid">{visibleIssues.map((issue, index) => <a className="issue-card" href={issue.html_url} key={issue.id} style={{ animationDelay: `${Math.min(index % 10, 6) * 55}ms` }}><div className="issue-card-top"><span className={`issue-state ${issue.state}`}>{issue.state === 'open' ? 'Aberto' : 'Resolvido'}</span><small>#{issue.number}</small></div><h3>{issue.title}</h3><p>{issueSummary(issue)}</p><div className="issue-labels">{issue.labels.slice(0, 3).map((label) => <span key={label.id} style={{ '--label-color': `#${label.color}` } as React.CSSProperties}>{label.name}</span>)}</div><div className="issue-card-footer"><span>Atualizado em {new Intl.DateTimeFormat('pt-BR').format(new Date(issue.updated_at))}</span><b>{issue.comments} {issue.comments === 1 ? 'resposta' : 'respostas'} · Abrir ↗</b></div></a>)}</div>
+      {!loading && !loadError && filteredIssues.length > 0 && <div className={`issue-load-more ${loadingMore ? 'loading' : ''}`} ref={loadMoreRef}><span />{loadingMore ? 'Carregando mais discussões…' : visibleCount < filteredIssues.length ? 'Continue rolando para carregar mais' : 'Todas as discussões foram exibidas'}</div>}
+    </div>
+  </section>;
 }

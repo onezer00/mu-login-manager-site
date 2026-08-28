@@ -1,0 +1,56 @@
+name: Relatar um problema
+description: Informe um erro ou comportamento inesperado no MU Login Manager.
+title: "[Problema]: "
+labels: ["bug", "beta"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por ajudar a melhorar o MU Login Manager. Não publique senhas, chaves de licença, arquivos `accounts.dat` ou outros dados pessoais.
+  - type: input
+    id: manager-version
+    attributes:
+      label: Versão do Manager
+      placeholder: Exemplo: 0.1.14-beta
+    validations:
+      required: true
+  - type: dropdown
+    id: windows-version
+    attributes:
+      label: Versão do Windows
+      options:
+        - Windows 11
+        - Windows 10
+        - Outra
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: O que aconteceu?
+      description: Explique o problema e o resultado que você esperava.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Como reproduzir
+      description: Liste os passos necessários para o problema acontecer novamente.
+      placeholder: |
+        1. Abra...
+        2. Clique em...
+        3. Observe...
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Capturas de tela ou logs
+      description: Remova credenciais e informações pessoais antes de anexar qualquer conteúdo.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Confirmação de privacidade
+      options:
+        - label: Confirmei que o relato não contém senhas, chaves de licença ou dados pessoais.
+          required: true

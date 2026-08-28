@@ -1,0 +1,29 @@
+name: Fazer uma pergunta
+description: Tire uma dúvida sobre instalação, configuração ou uso do Manager.
+title: "[Dúvida]: "
+labels: ["duvida"]
+body:
+  - type: dropdown
+    id: subject
+    attributes:
+      label: Assunto
+      options:
+        - Instalação ou atualização
+        - Configuração de contas
+        - Automação e login
+        - Licença ou pagamento
+        - Outro
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Qual é a sua dúvida?
+      description: Forneça o contexto necessário, sem incluir credenciais ou dados pessoais.
+    validations:
+      required: true
+  - type: input
+    id: manager-version
+    attributes:
+      label: Versão do Manager
+      placeholder: Exemplo: 0.1.14-beta

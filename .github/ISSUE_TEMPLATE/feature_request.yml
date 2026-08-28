@@ -1,0 +1,24 @@
+name: Sugerir uma melhoria
+description: Compartilhe uma ideia ou melhoria para o MU Login Manager.
+title: "[Sugestão]: "
+labels: ["sugestao"]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Qual necessidade você gostaria de resolver?
+      description: Conte em que momento essa melhoria ajudaria você.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Como você imagina a solução?
+      description: Descreva sua sugestão da forma mais clara possível.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+      description: Existe outra maneira de resolver a mesma necessidade?
