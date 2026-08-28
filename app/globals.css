@@ -32,7 +32,7 @@ main{overflow:hidden}.tab-viewport.slide-next{animation:carousel-next .55s cubic
 @media(prefers-reduced-motion:reduce){.feedback-actions>a,.issue-card{transition:none}.issue-card,.issue-card.from-left,.issue-card.from-right{opacity:1;filter:none;transform:none}.issue-skeletons span,.issue-skeletons b,.issue-skeletons i,.issue-load-more.loading span{animation:none}}
 
 /* Destaque dos cards ao passar o mouse */
-.issue-grid{padding:7px}.issue-card{position:relative;z-index:0}.issue-card.visible:hover{z-index:2;transform:translateY(-6px) scale(1.025);border-color:#5b96e8;background:linear-gradient(140deg,#162c45,#0e1a27);box-shadow:0 24px 58px #0009,0 0 0 1px #397cff28}
+.issue-grid{padding:7px}.issue-card{position:relative;z-index:0}.issue-card.from-right{transition-delay:.26s}.issue-card.visible:hover{z-index:2;transition-delay:0s;transform:translateY(-6px) scale(1.025);border-color:#5b96e8;background:linear-gradient(140deg,#162c45,#0e1a27);box-shadow:0 24px 58px #0009,0 0 0 1px #397cff28}
 @media(prefers-reduced-motion:reduce){.issue-card.visible:hover{transform:none}}
 
 /* Download orientado pela versão oficial */
