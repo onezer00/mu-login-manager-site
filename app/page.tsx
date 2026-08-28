@@ -188,6 +188,31 @@ function issueSummary(issue: GithubIssue) {
   return cleanBody || 'Abra a discussão para conferir os detalhes e acompanhar as respostas.';
 }
 
+function IssueCard({ issue, side }: { issue: GithubIssue; side: 'left' | 'right' }) {
+  const cardRef = useRef<HTMLAnchorElement | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      setVisible(true);
+      observer.disconnect();
+    }, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
+    observer.observe(card);
+    return () => observer.disconnect();
+  }, []);
+
+  return <a ref={cardRef} className={`issue-card from-${side} ${visible ? 'visible' : ''}`} href={issue.html_url}>
+    <div className="issue-card-top"><span className={`issue-state ${issue.state}`}>{issue.state === 'open' ? 'Aberto' : 'Resolvido'}</span><small>#{issue.number}</small></div>
+    <h3>{issue.title}</h3>
+    <p>{issueSummary(issue)}</p>
+    <div className="issue-labels">{issue.labels.slice(0, 3).map((label) => <span key={label.id} style={{ '--label-color': `#${label.color}` } as React.CSSProperties}>{label.name}</span>)}</div>
+    <div className="issue-card-footer"><span>Atualizado em {new Intl.DateTimeFormat('pt-BR').format(new Date(issue.updated_at))}</span><b>{issue.comments} {issue.comments === 1 ? 'resposta' : 'respostas'} · Abrir ↗</b></div>
+  </a>;
+}
+
 function Ajuda() {
   const [issues, setIssues] = useState<GithubIssue[]>([]);
   const [loading, setLoading] = useState(true);
@@ -195,7 +220,7 @@ function Ajuda() {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<IssueStatus>('all');
   const [category, setCategory] = useState<IssueCategory>('all');
-  const [visibleCount, setVisibleCount] = useState(10);
+  const [visibleCount, setVisibleCount] = useState(2);
   const [loadingMore, setLoadingMore] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const loadingTimerRef = useRef<number | null>(null);
@@ -227,7 +252,7 @@ function Ajuda() {
       if (!entry.isIntersecting || loadingMore) return;
       setLoadingMore(true);
       loadingTimerRef.current = window.setTimeout(() => {
-        setVisibleCount((count) => Math.min(count + 10, filteredIssues.length));
+        setVisibleCount((count) => Math.min(count + 2, filteredIssues.length));
         setLoadingMore(false);
       }, 550);
     }, { rootMargin: '180px' });
@@ -245,15 +270,15 @@ function Ajuda() {
     </div>
     <div className="issue-browser">
       <div className="issue-toolbar">
-        <label className="issue-search"><span>⌕</span><input value={query} onChange={(event) => { setQuery(event.target.value); setVisibleCount(10); }} placeholder="Pesquisar por título, descrição ou categoria" aria-label="Pesquisar nas dúvidas e feedbacks" />{query && <button onClick={() => { setQuery(''); setVisibleCount(10); }} aria-label="Limpar pesquisa">×</button>}</label>
-        <div className="status-filter" aria-label="Filtrar por status">{(['all', 'open', 'closed'] as IssueStatus[]).map((item) => <button className={status === item ? 'active' : ''} key={item} onClick={() => { setStatus(item); setVisibleCount(10); }}>{item === 'all' ? 'Todos' : item === 'open' ? 'Abertos' : 'Resolvidos'}</button>)}</div>
+        <label className="issue-search"><span>⌕</span><input value={query} onChange={(event) => { setQuery(event.target.value); setVisibleCount(2); }} placeholder="Pesquisar por título, descrição ou categoria" aria-label="Pesquisar nas dúvidas e feedbacks" />{query && <button onClick={() => { setQuery(''); setVisibleCount(2); }} aria-label="Limpar pesquisa">×</button>}</label>
+        <div className="status-filter" aria-label="Filtrar por status">{(['all', 'open', 'closed'] as IssueStatus[]).map((item) => <button className={status === item ? 'active' : ''} key={item} onClick={() => { setStatus(item); setVisibleCount(2); }}>{item === 'all' ? 'Todos' : item === 'open' ? 'Abertos' : 'Resolvidos'}</button>)}</div>
       </div>
-      <div className="category-filter" aria-label="Filtrar por categoria">{issueCategories.map((item) => <button className={category === item.id ? 'active' : ''} key={item.id} onClick={() => { setCategory(item.id); setVisibleCount(10); }}>{item.label}</button>)}</div>
+      <div className="category-filter" aria-label="Filtrar por categoria">{issueCategories.map((item) => <button className={category === item.id ? 'active' : ''} key={item.id} onClick={() => { setCategory(item.id); setVisibleCount(2); }}>{item.label}</button>)}</div>
       <div className="issue-results-title"><div><b>Discussões da comunidade</b><span>{filteredIssues.length} {filteredIssues.length === 1 ? 'resultado' : 'resultados'}</span></div><a href={`${COMMUNITY_REPOSITORY_URL}/issues`}>Ver tudo no GitHub ↗</a></div>
       {loading && <div className="issue-skeletons" aria-label="Carregando feedbacks">{Array.from({ length: 3 }, (_, index) => <div key={index}><span /><b /><i /></div>)}</div>}
       {!loading && loadError && <div className="issue-empty"><b>Não foi possível carregar as discussões agora.</b><span>Você ainda pode consultar e enviar feedback diretamente pelo GitHub.</span><a href={`${COMMUNITY_REPOSITORY_URL}/issues`}>Abrir central no GitHub ↗</a></div>}
       {!loading && !loadError && visibleIssues.length === 0 && <div className="issue-empty"><b>Nenhum resultado encontrado.</b><span>Tente remover algum filtro ou pesquisar usando outros termos.</span></div>}
-      <div className="issue-grid">{visibleIssues.map((issue, index) => <a className="issue-card" href={issue.html_url} key={issue.id} style={{ animationDelay: `${Math.min(index % 10, 6) * 55}ms` }}><div className="issue-card-top"><span className={`issue-state ${issue.state}`}>{issue.state === 'open' ? 'Aberto' : 'Resolvido'}</span><small>#{issue.number}</small></div><h3>{issue.title}</h3><p>{issueSummary(issue)}</p><div className="issue-labels">{issue.labels.slice(0, 3).map((label) => <span key={label.id} style={{ '--label-color': `#${label.color}` } as React.CSSProperties}>{label.name}</span>)}</div><div className="issue-card-footer"><span>Atualizado em {new Intl.DateTimeFormat('pt-BR').format(new Date(issue.updated_at))}</span><b>{issue.comments} {issue.comments === 1 ? 'resposta' : 'respostas'} · Abrir ↗</b></div></a>)}</div>
+      <div className="issue-grid">{visibleIssues.map((issue, index) => <IssueCard issue={issue} side={index % 2 === 0 ? 'left' : 'right'} key={issue.id} />)}</div>
       {!loading && !loadError && filteredIssues.length > 0 && <div className={`issue-load-more ${loadingMore ? 'loading' : ''}`} ref={loadMoreRef}><span />{loadingMore ? 'Carregando mais discussões…' : visibleCount < filteredIssues.length ? 'Continue rolando para carregar mais' : 'Todas as discussões foram exibidas'}</div>}
     </div>
   </section>;
