@@ -58,3 +58,7 @@ main{overflow:hidden}.tab-viewport.slide-next{animation:carousel-next .55s cubic
 /* Ritmo mais perceptível para a troca de página */
 .tab-viewport.slide-next{animation-name:carousel-next-slow;animation-duration:.82s}.tab-viewport.slide-previous{animation-name:carousel-previous-slow;animation-duration:.82s}@keyframes carousel-next-slow{from{opacity:0;transform:translateX(11vw) scale(.98);filter:blur(4px)}to{opacity:1;transform:none;filter:blur(0)}}@keyframes carousel-previous-slow{from{opacity:0;transform:translateX(-11vw) scale(.98);filter:blur(4px)}to{opacity:1;transform:none;filter:blur(0)}}
 @media(prefers-reduced-motion:reduce){.tab-viewport.slide-next,.tab-viewport.slide-previous{animation:none}}
+/* Links reais mantêm a navegação principal rastreável sem alterar seu visual. */
+.tab-nav a{position:relative;border:0;background:transparent;color:inherit;padding:10px 17px;font:600 12px var(--font-geist);cursor:pointer;text-decoration:none;transition:color .2s ease,background .2s ease}.tab-nav a:hover{color:#fff}.tab-nav a.active{color:#fff;background:#14243a}.tab-nav a.active:after{content:"";position:absolute;left:17px;right:17px;bottom:3px;height:2px;background:#397cff;box-shadow:0 0 12px #397cff}
+@media(max-width:900px){.tab-nav a{flex:1;padding-inline:10px;text-align:center}}
+@media(max-width:600px){.tab-nav a{min-width:max-content}}

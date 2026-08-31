@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 
 const RELEASES_URL = 'https://github.com/onezer00/mu-login-manager-releases/releases';
 const COMMUNITY_REPOSITORY_URL = 'https://github.com/onezer00/mu-login-manager-site';
@@ -8,6 +9,14 @@ const ISSUES_API_URL = 'https://api.github.com/repos/onezer00/mu-login-manager-s
 const FALLBACK_DOWNLOAD_URL = `${RELEASES_URL}/download/v0.1.15-beta/Setup-MU-Login-Manager-0.1.15-beta.exe`;
 type Tab = 'inicio' | 'recursos' | 'planos' | 'seguranca' | 'changelog' | 'ajuda';
 const tabs: { id: Tab; label: string }[] = [{ id: 'inicio', label: 'Início' }, { id: 'recursos', label: 'Recursos' }, { id: 'planos', label: 'Planos' }, { id: 'seguranca', label: 'Segurança' }, { id: 'changelog', label: 'Novidades' }, { id: 'ajuda', label: 'Ajuda' }];
+const tabUrls: Record<Tab, string> = {
+  inicio: '/',
+  recursos: '/recursos/',
+  planos: '/planos/',
+  seguranca: '/riscos/',
+  changelog: '/novidades/',
+  ajuda: '/ajuda/',
+};
 const plans = [
   { name: 'Party', accounts: '5 contas', devices: '1 PC', price: 'R$ 49,90', tone: 'blue' },
   { name: 'Party + Farm', accounts: '10 contas', devices: '1 PC', price: 'R$ 79,90', tone: 'bronze' },
@@ -20,8 +29,8 @@ const benefits = [
   ['03', 'Controle preciso', 'Restaure, minimize, religue ou encerre somente as janelas vinculadas pelo Manager.'],
 ];
 
-export default function Home() {
-  const [activeTab, setActiveTab] = useState<Tab>('inicio');
+export default function Home({ initialTab = 'inicio' }: { initialTab?: Tab }) {
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [direction, setDirection] = useState<'next' | 'previous'>('next');
   const [preparingDownload, setPreparingDownload] = useState(false);
   const navigate = (tab: Tab) => { if (tab !== activeTab) { setDirection(tabs.findIndex((item) => item.id === tab) > tabs.findIndex((item) => item.id === activeTab) ? 'next' : 'previous'); setActiveTab(tab); window.scrollTo({ top: 0, behavior: 'smooth' }); } };
@@ -43,7 +52,7 @@ export default function Home() {
   return <main>
     <header className="nav shell">
       <button className="brand brand-button" onClick={() => navigate('inicio')} aria-label="MU Login Manager — início"><span className="brand-mark">MU</span><span>LOGIN MANAGER</span></button>
-      <nav className="tab-nav" aria-label="Navegação principal" role="tablist">{tabs.map((tab) => <button key={tab.id} role="tab" aria-selected={activeTab === tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => navigate(tab.id)}>{tab.label}</button>)}</nav>
+      <nav className="tab-nav" aria-label="Navegação principal">{tabs.map((tab) => <Link key={tab.id} aria-current={activeTab === tab.id ? 'page' : undefined} className={activeTab === tab.id ? 'active' : ''} href={tabUrls[tab.id]}>{tab.label}</Link>)}</nav>
       <button className={`nav-cta nav-download nav-download-primary ${preparingDownload ? 'preparing' : ''}`} disabled={preparingDownload} onClick={downloadLatest}>{preparingDownload ? 'Preparando…' : 'Baixar beta'}</button>
     </header>
     <div className={`tab-viewport slide-${direction}`} key={activeTab} role="tabpanel" aria-label={tabs.find((tab) => tab.id === activeTab)?.label}>
