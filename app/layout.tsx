@@ -7,8 +7,10 @@ const mono = Geist_Mono({ variable: '--font-mono', subsets: ['latin'] });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://onezer00.github.io/mu-login-manager-site/'),
+  alternates: { canonical: './' },
   title: 'MU Login Manager — Suas contas, um só comando',
-  description: 'Organize, conecte e controle múltiplas contas de MU em uma única interface para Windows.',
+  description: 'Gerencie múltiplas contas e clientes de MU Online no Windows com login em sequência, controle de janelas e avaliação gratuita por 7 dias.',
+  keywords: ['MU Online', 'MU Login Manager', 'gerenciador de contas MU', 'múltiplas contas MU', 'login MU Online'],
   openGraph: {
     title: 'MU Login Manager — Suas contas, um só comando',
     description: 'Automação e controle para múltiplas contas de MU no Windows.',
