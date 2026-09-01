@@ -240,10 +240,10 @@ Contribuições são bem-vindas! Para contribuir:
 ## 📊 Status do Projeto
 
 ```
-Versão: 0.1.15-beta
+Versão: v0.1.27-beta
 Status: Em Desenvolvimento
 Plataforma: Windows (Desktop App)
-Última atualização: Setembro de 2026
+Última atualização: Agosto de 2026
 ```
 
 ---
