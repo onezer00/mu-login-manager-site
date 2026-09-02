@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://onezer00.github.io/mu-login-manager-site/sitemap.xml
+Sitemap: https://muloginmanager.com.brsitemap.xml
