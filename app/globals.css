@@ -62,3 +62,23 @@ main{overflow:hidden}.tab-viewport.slide-next{animation:carousel-next .55s cubic
 .tab-nav a{position:relative;border:0;background:transparent;color:inherit;padding:10px 17px;font:600 12px var(--font-geist);cursor:pointer;text-decoration:none;transition:color .2s ease,background .2s ease}.tab-nav a:hover{color:#fff}.tab-nav a.active{color:#fff;background:#14243a}.tab-nav a.active:after{content:"";position:absolute;left:17px;right:17px;bottom:3px;height:2px;background:#397cff;box-shadow:0 0 12px #397cff}
 @media(max-width:900px){.tab-nav a{flex:1;padding-inline:10px;text-align:center}}
 @media(max-width:600px){.tab-nav a{min-width:max-content}}
+
+.benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.benefit-grid > article {
+  grid-column: span 2;
+}
+
+/* Quando sobra apenas 1 card na última linha */
+.benefit-grid > article:last-child:nth-child(3n + 1) {
+  grid-column: 3 / span 2;
+}
+
+/* Quando sobram 2 cards na última linha */
+.benefit-grid > article:nth-last-child(2):nth-child(3n + 1) {
+  grid-column: 2 / span 2;
+}

@@ -27,6 +27,7 @@ const benefits = [
   ['01', 'Contas organizadas', 'Visualize status, personagem, PID e janela de cada conta em um único painel.'],
   ['02', 'Login em sequência', 'Automatize launcher, servidor e personagem respeitando os limites do seu plano.'],
   ['03', 'Controle preciso', 'Restaure, minimize, religue ou encerre somente as janelas vinculadas pelo Manager.'],
+  ['04', 'Limite de FPS global', 'Reduza o consumo de processamento durante sessões prolongadas de farm.'],
 ];
 
 export default function Home({ initialTab = 'inicio' }: { initialTab?: Tab }) {
@@ -72,7 +73,110 @@ function ProductPreview() {
 }
 
 function Recursos() {
-  return <><section className="section shell tab-section"><div className="section-head"><p className="eyebrow"><span /> FEITO PARA SUA ROTINA</p><h2>Menos repetição.<br /><em>Mais tempo no jogo.</em></h2><p className="tab-intro">Um fluxo projetado para eliminar tarefas mecânicas sem tirar de você o controle das janelas e das contas.</p></div><div className="benefit-grid">{benefits.map(([number, title, copy]) => <article key={number}><span>{number}</span><div className="benefit-icon">{number === '01' ? '▦' : number === '02' ? '▶' : '⌘'}</div><h3>{title}</h3><p>{copy}</p></article>)}</div></section><section className="workflow"><div className="shell workflow-inner"><div><p className="eyebrow"><span /> FLUXO SIMPLES</p><h2>Configure uma vez.<br /><em>Use todos os dias.</em></h2></div><ol><li><b>01</b><span><strong>Cadastre suas contas</strong><small>Credenciais protegidas localmente pelo Windows.</small></span></li><li><b>02</b><span><strong>Calibre a automação</strong><small>Defina launcher, servidor e posições dos personagens.</small></span></li><li><b>03</b><span><strong>Clique em “Logar todos”</strong><small>O Manager cuida da sequência e mantém você no controle.</small></span></li></ol></div></section></>;
+  return <>
+    {/* Se só tiver um benefício na linha, centraliza */}
+    <section className="section shell tab-section">
+      <div className="section-head">
+        <p className="eyebrow"><span /> FEITO PARA SUA ROTINA</p>
+        <h2>Menos repetição.<br /><em>Mais tempo no jogo.</em></h2>
+        <p className="tab-intro">
+          Um fluxo projetado para eliminar tarefas mecânicas sem tirar de você o controle das janelas e das contas.
+        </p>
+      </div>
+
+      <div className="benefit-grid">
+        {benefits.map(([number, title, copy]) => (
+          <article key={number}>
+            <span>{number}</span>
+            <div className="benefit-icon">{number === '01' ? '▦' : number === '02' ? '▶' : number === '03' ? '⌘' : number === '04' ? '⚡' : ''}</div>
+            <h3>{title}</h3>
+            <p>{copy}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section className="workflow">
+      <div className="shell workflow-inner">
+        <div>
+          <p className="eyebrow"><span /> ECONOMIA DE RECURSOS</p>
+          <h2>Mais contas abertas.<br /><em>Menos carga na máquina.</em></h2>
+          <p className="tab-intro">
+            Após finalizar login de suas contas, defina o limite global de FPS dos clients diretamente pelo Manager e reduza o consumo
+            de recursos durante sessões prolongadas de farm.
+            <br /><br />Altere o valor a qualquer momento, sem precisar reiniciar o jogo. É necessário desativar e reativar o botão para que seja refletido.
+          </p>
+        </div>
+
+        <ol>
+          <li>
+            <b>01</b>
+            <span>
+              <strong>FPS configurável</strong>
+              <small>Defina o valor ideal para sua máquina. Use 0 para manter o jogo sem limitação.</small>
+            </span>
+          </li>
+          <li>
+            <b>02</b>
+            <span>
+              <strong>Controle global</strong>
+              <small>O limite é aplicado às instâncias do MU Online que utilizam o perfil main.exe.</small>
+            </span>
+          </li>
+          <li>
+            <b>03</b>
+            <span>
+              <strong>Integração com RTSS</strong>
+              <small>
+                O recurso utiliza o RivaTuner Statistics Server (RTSS), software de terceiros,
+                para aplicar o limite de FPS.
+              </small>
+            </span>
+          </li>
+          <li>
+            <b>04</b>
+            <span>
+              <strong>Limite de FPS global</strong>
+              <small>Reduza o consumo de processamento durante sessões prolongadas de farm.</small>
+            </span>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section className="workflow">
+      <div className="shell workflow-inner">
+        <div>
+          <p className="eyebrow"><span /> FLUXO SIMPLES</p>
+          <h2>Configure uma vez.<br /><em>Use todos os dias.</em></h2>
+        </div>
+
+        <ol>
+          <li>
+            <b>01</b>
+            <span>
+              <strong>Cadastre suas contas</strong>
+              <small>Credenciais protegidas localmente pelo Windows.</small>
+            </span>
+          </li>
+          <li>
+            <b>02</b>
+            <span>
+              <strong>Calibre a automação</strong>
+              <small>Defina launcher, servidor e posições dos personagens.</small>
+            </span>
+          </li>
+          <li>
+            <b>03</b>
+            <span>
+              <strong>Clique em “Logar todos”</strong>
+              <small>O Manager cuida da sequência e mantém você no controle.</small>
+            </span>
+          </li>
+        </ol>
+      </div>
+    </section>
+  </>;
 }
 
 function Planos({ onDownload, preparingDownload }: { onDownload: () => void; preparingDownload: boolean }) {
